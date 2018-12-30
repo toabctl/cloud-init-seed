@@ -18,6 +18,7 @@
 
 import argparse
 import os
+import shutil
 import subprocess
 import tempfile
 import uuid
@@ -33,13 +34,28 @@ META_DATA = """instance-id: {}
 local-hostname: cloudy
 """
 
+ISO_CMDS = ['mkisofs', 'genisoimage']
+
+def _get_iso_image_cmd():
+    """get the full path to mkisofs or genisoimage or None
+    if both are not available"""
+    for prog in ISO_CMDS:
+        p = shutil.which(prog)
+        if p:
+            return p
+    return None
+
+
 def create(args):
     with tempfile.TemporaryDirectory() as tempdir:
         with open(os.path.join(tempdir, 'user-data'), 'w') as ud:
             ud.write(USER_DATA.format(args.ssh_pub_key.read()))
         with open(os.path.join(tempdir, 'meta-data'), 'w') as md:
             md.write(META_DATA.format(uuid.uuid4()))
-        args = ['/usr/bin/mkisofs',
+        prog = _get_iso_image_cmd()
+        if not prog:
+            raise Exception('None of the commands {} found'.format(ISO_CMDS))
+        args = [prog,
                 '-output', args.outfile,
                 '-volid', 'cidata',
                 '-joliet', '-rock',
