@@ -24,7 +24,7 @@ import uuid
 
 
 USER_DATA = """#cloud-config
-debug=True
+debug: True
 ssh_authorized_keys:
   - {}
 """
