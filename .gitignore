@@ -1,0 +1,8 @@
+dist
+cloud-init-seed.egg-info/
+*.pyc
+build
+AUTHORS
+ChangeLog
+.tox
+*~
